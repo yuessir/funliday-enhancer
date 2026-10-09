@@ -453,11 +453,20 @@ ${cssContent}
     const baseUrl = `${protocol}://${host}`;
 
     const uploadToBlobBatch = async (fileName, content) => {
+      // Upload to unique timestamp folder
       const blobPath = `trips/${batchId}/${fileName}`;
       const blob = await put(blobPath, content, {
         access: 'public',
         contentType: 'text/html; charset=utf-8'
       });
+      
+      // Also overwrite the "latest" folder version
+      await put(`latest/${fileName}`, content, {
+        access: 'public',
+        contentType: 'text/html; charset=utf-8',
+        addRandomSuffix: false
+      });
+
       const proxyUrl = `${baseUrl}/api/view?url=${encodeURIComponent(blob.url)}`;
       blobUrls.push({ fileName, url: proxyUrl });
     };
