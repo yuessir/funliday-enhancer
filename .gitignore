@@ -147,3 +147,8 @@ vite.config.ts.timestamp-*
 
 # Turbo Repo
 .turbo
+
+# Custom rules
+.DS_Store
+index-d*.html
+demo.html

@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Funliday 網頁轉換器</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #00f0ff;
+            --secondary: #7000ff;
+            --bg-color: #0f172a;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --glass-bg: rgba(30, 41, 59, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(circle at top right, #1e1b4b, #0f172a 60%);
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            background: linear-gradient(to right, var(--primary), #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 25px;
+        }
+
+        .input-group i {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 1.2rem;
+        }
+
+        input[type="url"] {
+            width: 100%;
+            padding: 18px 20px 18px 50px;
+            border-radius: 16px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--glass-border);
+            color: var(--text-main);
+            font-size: 1rem;
+            font-family: inherit;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        input[type="url"]:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 240, 255, 0.2);
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 16px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, var(--secondary), #3b82f6);
+            color: white;
+            border: none;
+            font-size: 1.1rem;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-submit:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -10px rgba(112, 0, 255, 0.6);
+        }
+
+        .btn-submit:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        .btn-submit:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            background: #334155;
+        }
+
+        .loader {
+            display: none;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top: 3px solid white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .results {
+            display: none;
+            margin-top: 30px;
+            padding-top: 25px;
+            border-top: 1px solid var(--glass-border);
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .results h3 {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+
+        .links-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .link-item {
+            background: rgba(15, 23, 42, 0.8);
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid var(--glass-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+
+        .link-item:hover {
+            border-color: rgba(0, 240, 255, 0.4);
+        }
+
+        .link-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            overflow: hidden;
+        }
+
+        .link-name {
+            font-weight: 600;
+            color: #e2e8f0;
+        }
+
+        .link-url {
+            color: var(--primary);
+            font-size: 0.85rem;
+            text-decoration: none;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .link-url:hover {
+            text-decoration: underline;
+        }
+
+        .btn-copy {
+            background: transparent;
+            border: 1px solid var(--text-muted);
+            color: var(--text-muted);
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-copy:hover {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border-color: white;
+        }
+
+        .error-message {
+            display: none;
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 10px;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #f87171;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        .success-badge {
+            display: inline-block;
+            background: rgba(34, 197, 94, 0.1);
+            color: #4ade80;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin-left: 10px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Funliday to Web</h1>
+            <p>貼上 Funliday 分享網址，快速轉換為專屬靜態網站！</p>
+        </div>
+
+        <form id="convert-form">
+            <div class="input-group">
+                <i class="fa-solid fa-link"></i>
+                <input type="url" id="url-input" placeholder="https://www.funliday.com/..." required>
+            </div>
+            
+            <button type="submit" id="submit-btn" class="btn-submit">
+                <span id="btn-text">開始轉換</span>
+                <div id="loader" class="loader"></div>
+            </button>
+        </form>
+
+        <div id="error-message" class="error-message"></div>
+
+        <div id="results" class="results">
+            <h3 id="trip-title">轉換完成 <span class="success-badge"><i class="fa-solid fa-check"></i> 成功</span></h3>
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 15px;">以下為產出的靜態檔案，已上傳至公網：</p>
+            <ul id="links-list" class="links-list">
+                <!-- Links will be injected here -->
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('convert-form');
+        const submitBtn = document.getElementById('submit-btn');
+        const btnText = document.getElementById('btn-text');
+        const loader = document.getElementById('loader');
+        const errorMessage = document.getElementById('error-message');
+        const resultsContainer = document.getElementById('results');
+        const linksList = document.getElementById('links-list');
+        const tripTitle = document.getElementById('trip-title');
+        const urlInput = document.getElementById('url-input');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const url = urlInput.value.trim();
+            if (!url) return;
+
+            // UI State: Loading
+            submitBtn.disabled = true;
+            btnText.textContent = '轉換中...';
+            loader.style.display = 'block';
+            errorMessage.style.display = 'none';
+            resultsContainer.style.display = 'none';
+            linksList.innerHTML = '';
+
+            try {
+                const response = await fetch('/api/convert', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || '轉換失敗，請稍後再試');
+                }
+
+                // Render Results
+                tripTitle.innerHTML = `${data.title || '轉換完成'} <span class="success-badge"><i class="fa-solid fa-check"></i> 成功</span>`;
+                
+                data.urls.forEach(item => {
+                    const li = document.createElement('li');
+                    li.className = 'link-item';
+                    
+                    const isMain = item.fileName === 'index.html';
+                    const icon = isMain ? 'fa-globe' : 'fa-file-lines';
+
+                    li.innerHTML = `
+                        <div class="link-info">
+                            <span class="link-name"><i class="fa-solid ${icon}" style="margin-right: 6px; color: ${isMain ? '#00f0ff' : '#94a3b8'}"></i>${item.fileName}</span>
+                            <a href="${item.url}" target="_blank" class="link-url">${item.url}</a>
+                        </div>
+                        <button class="btn-copy" onclick="copyToClipboard('${item.url}', this)" title="複製網址">
+                            <i class="fa-regular fa-copy"></i>
+                        </button>
+                    `;
+                    linksList.appendChild(li);
+                });
+
+                resultsContainer.style.display = 'block';
+
+            } catch (error) {
+                errorMessage.textContent = error.message;
+                errorMessage.style.display = 'block';
+            } finally {
+                // Restore UI State
+                submitBtn.disabled = false;
+                btnText.textContent = '重新轉換';
+                loader.style.display = 'none';
+            }
+        });
+
+        window.copyToClipboard = function(text, btnElement) {
+            navigator.clipboard.writeText(text).then(() => {
+                const originalIcon = btnElement.innerHTML;
+                btnElement.innerHTML = '<i class="fa-solid fa-check" style="color: #4ade80;"></i>';
+                btnElement.style.borderColor = '#4ade80';
+                setTimeout(() => {
+                    btnElement.innerHTML = originalIcon;
+                    btnElement.style.borderColor = 'var(--text-muted)';
+                }, 2000);
+            }).catch(err => {
+                console.error('Copy failed', err);
+            });
+        };
+    </script>
+</body>
+</html>
