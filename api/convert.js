@@ -40,6 +40,8 @@ module.exports = async function handler(req, res) {
     const tripTitle = $('h1').first().text().trim() || "Funliday 行程";
     const daysData = [];
     const daySections = $('section.day').toArray();
+    
+    const allPointsToFetch = []; // Collect promises for parallel fetching
 
     for (let dayIndex = 0; dayIndex < daySections.length; dayIndex++) {
       const daySection = daySections[dayIndex];
@@ -62,22 +64,27 @@ module.exports = async function handler(req, res) {
           const address = poiEl.find('li[class*="_poiDetailAddress"]').text().trim();
           const tel = poiEl.find('li[class*="_poiDetailTel"]').text().trim();
 
-          let coords = null;
-          if (poiUrl) {
-            coords = await getPoiCoords(poiUrl);
-            console.log(`Fetched coords for ${name}: ${coords ? coords.lat + ',' + coords.lng : 'Not found'}`);
-          }
-
           currentPoi = {
             name,
             time,
             address,
             tel,
-            lat: coords ? coords.lat : null,
-            lng: coords ? coords.lng : null,
+            lat: null,
+            lng: null,
             transport: null
           };
           rawPoints.push(currentPoi);
+
+          if (poiUrl) {
+            allPointsToFetch.push(async () => {
+              const coords = await getPoiCoords(poiUrl);
+              if (coords) {
+                currentPoi.lat = coords.lat;
+                currentPoi.lng = coords.lng;
+              }
+              console.log(`Fetched coords for ${name}: ${coords ? coords.lat + ',' + coords.lng : 'Not found'}`);
+            });
+          }
         }
 
         if (transEl.length > 0 && currentPoi) {
@@ -130,6 +137,10 @@ module.exports = async function handler(req, res) {
         daysData.push(groupedPoints);
       }
     }
+
+    // Execute all coordinate fetches in parallel
+    console.log(`Fetching coordinates for ${allPointsToFetch.length} POIs in parallel...`);
+    await Promise.all(allPointsToFetch.map(fetchTask => fetchTask()));
 
     if (daysData.length === 0) {
       return res.status(400).json({ error: '未找到任何行程點，可能是因為抓取方式失效或網址不正確。' });
@@ -472,14 +483,17 @@ ${cssContent}
     };
 
     console.log("Uploading index.html to Blob...");
-    await uploadToBlobBatch('index.html', generateHTMLTemplate('index.html', 'allDaysData.map((d, i) => i + 1)'));
+    const uploadPromises = [];
+    uploadPromises.push(uploadToBlobBatch('index.html', generateHTMLTemplate('index.html', 'allDaysData.map((d, i) => i + 1)')));
 
     for (let i = 0; i < daysData.length; i++) {
       const dayNum = i + 1;
       const dayFileName = `index-d${dayNum}.html`;
       console.log(`Uploading ${dayFileName} to Blob...`);
-      await uploadToBlobBatch(dayFileName, generateHTMLTemplate(dayFileName, `[${dayNum}]`));
+      uploadPromises.push(uploadToBlobBatch(dayFileName, generateHTMLTemplate(dayFileName, `[${dayNum}]`)));
     }
+
+    await Promise.all(uploadPromises);
 
     return res.status(200).json({ success: true, title: tripTitle, urls: blobUrls });
 
