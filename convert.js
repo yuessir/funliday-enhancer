@@ -132,7 +132,7 @@ async function convertFunliday(url) {
 
     // Function to generate the HTML template
     function generateHTMLTemplate(fileName, defaultDaysStr) {
-      const cssContent = fs.readFileSync('style.css', 'utf8');
+      const cssContent = fs.readFileSync('public/style.css', 'utf8');
 
       return `<!DOCTYPE html>
 <html lang="zh-TW">
