@@ -448,13 +448,18 @@ ${cssContent}
     // Use a single timestamp prefix for this conversion batch
     const batchId = new Date().getTime();
 
+    const host = req.headers['x-forwarded-host'] || req.headers.host;
+    const protocol = req.headers['x-forwarded-proto'] || 'https';
+    const baseUrl = `${protocol}://${host}`;
+
     const uploadToBlobBatch = async (fileName, content) => {
       const blobPath = `trips/${batchId}/${fileName}`;
       const blob = await put(blobPath, content, {
         access: 'public',
         contentType: 'text/html; charset=utf-8'
       });
-      blobUrls.push({ fileName, url: blob.url });
+      const proxyUrl = `${baseUrl}/api/view?url=${encodeURIComponent(blob.url)}`;
+      blobUrls.push({ fileName, url: proxyUrl });
     };
 
     console.log("Uploading index.html to Blob...");
