@@ -322,7 +322,7 @@
                 const data = await response.json();
 
                 if (!response.ok) {
-                    throw new Error(data.error || '轉換失敗，請稍後再試');
+                    throw new Error(data.details || data.error || '轉換失敗，請稍後再試');
                 }
 
                 // Render Results
