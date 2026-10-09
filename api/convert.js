@@ -138,7 +138,7 @@ module.exports = async function handler(req, res) {
     console.log(`Successfully extracted ${daysData.length} days.`);
 
     // Read CSS content
-    const cssPath = path.join(process.cwd(), 'style.css');
+    const cssPath = path.join(process.cwd(), 'public', 'style.css');
     let cssContent = '';
     if (fs.existsSync(cssPath)) {
         cssContent = fs.readFileSync(cssPath, 'utf8');
