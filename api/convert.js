@@ -475,7 +475,8 @@ ${cssContent}
       await put(`latest/${fileName}`, content, {
         access: 'public',
         contentType: 'text/html; charset=utf-8',
-        addRandomSuffix: false
+        addRandomSuffix: false,
+        allowOverwrite: true
       });
 
       const proxyUrl = `${baseUrl}/api/view?url=${encodeURIComponent(blob.url)}`;
