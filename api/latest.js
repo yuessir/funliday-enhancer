@@ -7,15 +7,8 @@ module.exports = async function handler(req, res) {
     const { blobs } = await list({ prefix: 'latest/index.html', limit: 1 });
     
     if (!blobs || blobs.length === 0) {
-      return res.status(404).send(`
-        <html>
-          <head><meta charset="utf-8"></head>
-          <body style="font-family: sans-serif; text-align: center; padding: 50px;">
-            <h2>尚未轉換任何行程</h2>
-            <p>請前往 <a href="/web-converter.html">轉換器</a> 轉換您的第一個行程！</p>
-          </body>
-        </html>
-      `);
+      // Fallback: Redirect to the static index.html if it exists
+      return res.redirect(302, '/index.html');
     }
 
     const latestBlobUrl = blobs[0].url;
@@ -31,6 +24,7 @@ module.exports = async function handler(req, res) {
     return res.send(fetchRes.data);
   } catch (error) {
     console.error('Error fetching latest blob:', error.message);
-    return res.status(500).send('無法載入最新行程');
+    // Fallback: Redirect to the static index.html on any error (like missing token)
+    return res.redirect(302, '/index.html');
   }
 };
