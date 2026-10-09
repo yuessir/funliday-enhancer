@@ -437,7 +437,7 @@ ${cssContent}
       const timestamp = new Date().getTime();
       // append timestamp to make it somewhat unique, or put it in a folder
       // for example: trips/1638202910/index.html
-      const blobPath = \`trips/\${timestamp}/\${fileName}\`;
+      const blobPath = `trips/${timestamp}/${fileName}`;
       const blob = await put(blobPath, content, {
         access: 'public',
         contentType: 'text/html; charset=utf-8'
@@ -449,7 +449,7 @@ ${cssContent}
     const batchId = new Date().getTime();
 
     const uploadToBlobBatch = async (fileName, content) => {
-      const blobPath = \`trips/\${batchId}/\${fileName}\`;
+      const blobPath = `trips/${batchId}/${fileName}`;
       const blob = await put(blobPath, content, {
         access: 'public',
         contentType: 'text/html; charset=utf-8'
@@ -462,9 +462,9 @@ ${cssContent}
 
     for (let i = 0; i < daysData.length; i++) {
       const dayNum = i + 1;
-      const dayFileName = \`index-d\${dayNum}.html\`;
-      console.log(\`Uploading \${dayFileName} to Blob...\`);
-      await uploadToBlobBatch(dayFileName, generateHTMLTemplate(dayFileName, \`[\${dayNum}]\`));
+      const dayFileName = `index-d${dayNum}.html`;
+      console.log(`Uploading ${dayFileName} to Blob...`);
+      await uploadToBlobBatch(dayFileName, generateHTMLTemplate(dayFileName, `[${dayNum}]`));
     }
 
     return res.status(200).json({ success: true, title: tripTitle, urls: blobUrls });
