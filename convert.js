@@ -420,15 +420,15 @@ ${cssContent}
     }
 
     // Generate index.html (Super File)
-    fs.writeFileSync('index.html', generateHTMLTemplate('index.html', 'allDaysData.map((d, i) => i + 1)'));
-    console.log(`Successfully generated index.html !`);
+    fs.writeFileSync('public/index.html', generateHTMLTemplate('index.html', 'allDaysData.map((d, i) => i + 1)'));
+    console.log(`Successfully generated public/index.html !`);
 
     // Generate individual day files (index-d1.html, index-d2.html...)
     daysData.forEach((_, i) => {
       const dayNum = i + 1;
       const dayFileName = `index-d${dayNum}.html`;
-      fs.writeFileSync(dayFileName, generateHTMLTemplate(dayFileName, `[${dayNum}]`));
-      console.log(`Successfully generated ${dayFileName} !`);
+      fs.writeFileSync(`public/${dayFileName}`, generateHTMLTemplate(dayFileName, `[${dayNum}]`));
+      console.log(`Successfully generated public/${dayFileName} !`);
     });
 
   } catch (e) {
